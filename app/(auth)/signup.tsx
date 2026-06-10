@@ -2,34 +2,60 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from "react-native";
+// Import our centralized database instance
+import { supabase } from "../../lib/supabase";
 
 export default function SignUp() {
   const router = useRouter();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false); // Track loading state during submission
 
-  const handleSignUp = () => {
-    // Add your signup/registration authentication logic here
-    console.log("Registering with:", fullName, email, password);
-  };
+  const handleSignUp = async () => {
+    // Basic text validation check
+    if (!email || !password || !fullName) {
+      Alert.alert("Error", "Please fill in all available text fields.");
+      return;
+    }
 
-  const handleGoogleSignUp = () => {
-    console.log("Signing up with Google");
-  };
+    setLoading(true);
 
-  const handleFacebookSignUp = () => {
-    console.log("Signing up with Facebook");
+    // Call Supabase built-in Authentication signup pipeline
+    const { data, error } = await supabase.auth.signUp({
+      email: email,
+      password: password,
+      options: {
+        // We pass the full name inside user metadata so it saves to the account profile
+        data: {
+          full_name: fullName, 
+        },
+      },
+    });
+
+    setLoading(false);
+
+    if (error) {
+      Alert.alert("Sign Up Error", error.message);
+    } else {
+      Alert.alert(
+        "Success!", 
+        "Account created successfully. Please check your email inbox to confirm registration!",
+        [{ text: "OK", onPress: () => router.replace("/login") }]
+      );
+    }
   };
 
   return (
@@ -60,6 +86,7 @@ export default function SignUp() {
               value={fullName}
               onChangeText={setFullName}
               autoCapitalize="words"
+              editable={!loading}
             />
           </View>
 
@@ -73,6 +100,7 @@ export default function SignUp() {
               onChangeText={setEmail}
               keyboardType="email-address"
               autoCapitalize="none"
+              editable={!loading}
             />
           </View>
 
@@ -86,12 +114,21 @@ export default function SignUp() {
               value={password}
               onChangeText={setPassword}
               autoCapitalize="none"
+              editable={!loading}
             />
           </View>
 
-          {/* Core Action Button utilizing your brand's green accent */}
-          <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
-            <Text style={styles.signUpButtonText}>Sign Up</Text>
+          {/* Core Action Button with integrated loading handler */}
+          <TouchableOpacity 
+            style={[styles.signUpButton, loading && { opacity: 0.7 }]} 
+            onPress={handleSignUp}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text style={styles.signUpButtonText}>Get Started</Text>
+            )}
           </TouchableOpacity>
 
           {/* Divider Text */}
@@ -101,14 +138,14 @@ export default function SignUp() {
             <View style={styles.dividerLine} />
           </View>
 
-          {/* Social Sign-In Buttons with Left-Aligned Logos */}
+          {/* Social Sign-In Buttons */}
           <View style={styles.socialContainer}>
-            <TouchableOpacity style={styles.socialButton} onPress={handleGoogleSignUp}>
+            <TouchableOpacity style={styles.socialButton} disabled={loading}>
               <Ionicons name="logo-google" size={20} color="#EA4335" />
               <Text style={styles.socialButtonText}>Google</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.socialButton} onPress={handleFacebookSignUp}>
+            <TouchableOpacity style={styles.socialButton} disabled={loading}>
               <Ionicons name="logo-facebook" size={20} color="#1877F2" />
               <Text style={styles.socialButtonText}>Facebook</Text>
             </TouchableOpacity>
@@ -118,7 +155,7 @@ export default function SignUp() {
         {/* Bottom Section: Footer Navigation */}
         <View style={styles.footerContainer}>
           <Text style={styles.footerText}>Already have an account? </Text>
-          <TouchableOpacity onPress={() => router.push("/login")}>
+          <TouchableOpacity onPress={() => router.push("/login")} disabled={loading}>
             <Text style={styles.loginText}>Sign In</Text>
           </TouchableOpacity>
         </View>
@@ -129,134 +166,25 @@ export default function SignUp() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fdfdfdef", // Off-white splash background
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: "center",
-    paddingHorizontal: 24,
-    paddingTop: 40,
-    paddingBottom: 20,
-  },
-  headerContainer: {
-    alignItems: "center",
-    marginBottom: 32,
-  },
-  logo: {
-    width: 120, // Slightly scaled down from login to allow room for the extra form field
-    height: 120,
-    resizeMode: "contain",
-    marginBottom: 16,
-  },
-  titleText: {
-    fontSize: 26,
-    fontWeight: "800",
-    color: "#20361A", // Brand Forest Green
-    textAlign: "center",
-    marginBottom: 6,
-  },
-  subtitleText: {
-    fontSize: 15,
-    fontWeight: "500",
-    color: "#1C554E", // Brand Deep Teal
-    textAlign: "center",
-  },
-  formContainer: {
-    width: "100%",
-    marginBottom: 24,
-  },
-  inputWrapper: {
-    marginBottom: 16,
-  },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#20361A",
-    marginBottom: 8,
-  },
-  input: {
-    width: "100%",
-    height: 50,
-    backgroundColor: "#F4F7F6",
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    color: "#20361A",
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
-  },
-  signUpButton: {
-    width: "100%",
-    height: 52,
-    backgroundColor: "#84A346", // Brand Bright Green
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 12,
-    shadowColor: "#84A346",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  signUpButtonText: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#FFFFFF",
-  },
-  dividerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 24,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "#E2E8F0",
-  },
-  dividerText: {
-    fontSize: 14,
-    color: "#8E8E93",
-    paddingHorizontal: 12,
-    fontWeight: "500",
-  },
-  socialContainer: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  socialButton: {
-    flex: 1,
-    height: 50,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 10,
-  },
-  socialButtonText: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#20361A",
-  },
-  footerContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: "auto",
-    paddingTop: 20,
-  },
-  footerText: {
-    fontSize: 14,
-    color: "#666666",
-  },
-  loginText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#20361A",
-  },
+  container: { flex: 1, backgroundColor: "#fdfdfdef" },
+  scrollContainer: { flexGrow: 1, justifyContent: "center", paddingHorizontal: 24, paddingTop: 40, paddingBottom: 20 },
+  headerContainer: { alignItems: "center", marginBottom: 32 },
+  logo: { width: 120, height: 120, resizeMode: "contain", marginBottom: 16 },
+  titleText: { fontSize: 26, fontWeight: "800", color: "#20361A", textAlign: "center", marginBottom: 6 },
+  subtitleText: { fontSize: 15, fontWeight: "500", color: "#1C554E", textAlign: "center" },
+  formContainer: { width: "100%", marginBottom: 24 },
+  inputWrapper: { marginBottom: 16 },
+  inputLabel: { fontSize: 14, fontWeight: "600", color: "#20361A", marginBottom: 8 },
+  input: { width: "100%", height: 50, backgroundColor: "#F4F7F6", borderRadius: 12, paddingHorizontal: 16, fontSize: 16, color: "#20361A", borderWidth: 1, borderColor: "#E2E8F0" },
+  signUpButton: { width: "100%", height: 52, backgroundColor: "#84A346", borderRadius: 12, justifyContent: "center", alignItems: "center", marginTop: 12, shadowColor: "#84A346", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 3 },
+  signUpButtonText: { fontSize: 16, fontWeight: "700", color: "#FFFFFF" },
+  dividerContainer: { flexDirection: "row", alignItems: "center", marginVertical: 24 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: "#E2E8F0" },
+  dividerText: { fontSize: 14, color: "#8E8E93", paddingHorizontal: 12, fontWeight: "500" },
+  socialContainer: { flexDirection: "row", gap: 12 },
+  socialButton: { flex: 1, height: 50, backgroundColor: "#FFFFFF", borderRadius: 12, borderWidth: 1, borderColor: "#E2E8F0", flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 10 },
+  socialButtonText: { fontSize: 15, fontWeight: "600", color: "#20361A" },
+  footerContainer: { flexDirection: "row", justifyContent: "center", alignItems: "center", marginTop: "auto", paddingTop: 20 },
+  footerText: { fontSize: 14, color: "#666666" },
+  loginText: { fontSize: 14, fontWeight: "700", color: "#20361A" },
 });
