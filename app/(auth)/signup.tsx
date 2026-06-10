@@ -14,7 +14,6 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-// Import our centralized database instance
 import { supabase } from "../../lib/supabase";
 
 export default function SignUp() {
@@ -22,39 +21,56 @@ export default function SignUp() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false); // Track loading state during submission
+  const [loading, setLoading] = useState(false);
 
   const handleSignUp = async () => {
-    // Basic text validation check
-    if (!email || !password || !fullName) {
-      Alert.alert("Error", "Please fill in all available text fields.");
+    // 1. Basic Text Fields Validation
+    if (!email.trim() || !password.trim() || !fullName.trim()) {
+      Alert.alert("Missing Fields", "Please fill in all text fields to create your account.");
+      return;
+    }
+
+    if (password.length < 6) {
+      Alert.alert("Weak Password", "Password must be at least 6 characters long.");
       return;
     }
 
     setLoading(true);
 
-    // Call Supabase built-in Authentication signup pipeline
-    const { data, error } = await supabase.auth.signUp({
-      email: email,
-      password: password,
-      options: {
-        // We pass the full name inside user metadata so it saves to the account profile
-        data: {
-          full_name: fullName, 
-        },
-      },
-    });
+    try {
+      // 2. Register the user credentials into Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: email.trim(),
+        password: password,
+      });
 
-    setLoading(false);
+      if (authError) throw authError;
 
-    if (error) {
-      Alert.alert("Sign Up Error", error.message);
-    } else {
+      // 3. Insert the user profile name linked directly via the new unique User ID
+      if (authData?.user) {
+        const { error: profileError } = await supabase
+          .from("profiles")
+          .insert([
+            {
+              id: authData.user.id,
+              full_name: fullName.trim(),
+            },
+          ]);
+
+        if (profileError) throw profileError;
+      }
+
+      // 4. Success Routine Notification
       Alert.alert(
-        "Success!", 
-        "Account created successfully. Please check your email inbox to confirm registration!",
-        [{ text: "OK", onPress: () => router.replace("/login") }]
+        "Account Created! 🎉",
+        "Your PAYTON account is ready. Please check your email inbox if verification is enabled, or sign in now!",
+        [{ text: "Continue to Login", onPress: () => router.replace("/login") }]
       );
+      
+    } catch (error: any) {
+      Alert.alert("Registration Failed", error.message || "An unexpected error occurred.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -65,17 +81,16 @@ export default function SignUp() {
     >
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         
-        {/* Top Section: Brand Logo & Welcoming Header */}
         <View style={styles.headerContainer}>
           <Image 
             source={require("../../assets/images/logo-light.png")}
+            resizeMode="contain"
             style={styles.logo} 
           />
           <Text style={styles.titleText}>Create your account</Text>
           <Text style={styles.subtitleText}>Join PAYTON and master your finances</Text>
         </View>
 
-        {/* Middle Section: Input Form */}
         <View style={styles.formContainer}>
           <View style={styles.inputWrapper}>
             <Text style={styles.inputLabel}>Full Name</Text>
@@ -118,7 +133,6 @@ export default function SignUp() {
             />
           </View>
 
-          {/* Core Action Button with integrated loading handler */}
           <TouchableOpacity 
             style={[styles.signUpButton, loading && { opacity: 0.7 }]} 
             onPress={handleSignUp}
@@ -131,14 +145,12 @@ export default function SignUp() {
             )}
           </TouchableOpacity>
 
-          {/* Divider Text */}
           <View style={styles.dividerContainer}>
             <View style={styles.dividerLine} />
             <Text style={styles.dividerText}>or continue with</Text>
             <View style={styles.dividerLine} />
           </View>
 
-          {/* Social Sign-In Buttons */}
           <View style={styles.socialContainer}>
             <TouchableOpacity style={styles.socialButton} disabled={loading}>
               <Ionicons name="logo-google" size={20} color="#EA4335" />
@@ -152,7 +164,6 @@ export default function SignUp() {
           </View>
         </View>
 
-        {/* Bottom Section: Footer Navigation */}
         <View style={styles.footerContainer}>
           <Text style={styles.footerText}>Already have an account? </Text>
           <TouchableOpacity onPress={() => router.push("/login")} disabled={loading}>
@@ -169,14 +180,14 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#fdfdfdef" },
   scrollContainer: { flexGrow: 1, justifyContent: "center", paddingHorizontal: 24, paddingTop: 40, paddingBottom: 20 },
   headerContainer: { alignItems: "center", marginBottom: 32 },
-  logo: { width: 120, height: 120, resizeMode: "contain", marginBottom: 16 },
+  logo: { width: 120, height: 120, marginBottom: 16 },
   titleText: { fontSize: 26, fontWeight: "800", color: "#20361A", textAlign: "center", marginBottom: 6 },
   subtitleText: { fontSize: 15, fontWeight: "500", color: "#1C554E", textAlign: "center" },
   formContainer: { width: "100%", marginBottom: 24 },
   inputWrapper: { marginBottom: 16 },
   inputLabel: { fontSize: 14, fontWeight: "600", color: "#20361A", marginBottom: 8 },
   input: { width: "100%", height: 50, backgroundColor: "#F4F7F6", borderRadius: 12, paddingHorizontal: 16, fontSize: 16, color: "#20361A", borderWidth: 1, borderColor: "#E2E8F0" },
-  signUpButton: { width: "100%", height: 52, backgroundColor: "#84A346", borderRadius: 12, justifyContent: "center", alignItems: "center", marginTop: 12, shadowColor: "#84A346", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 3 },
+  signUpButton: { width: "100%", height: 52, backgroundColor: "#84A346", borderRadius: 12, justifyContent: "center", alignItems: "center", marginTop: 12 },
   signUpButtonText: { fontSize: 16, fontWeight: "700", color: "#FFFFFF" },
   dividerContainer: { flexDirection: "row", alignItems: "center", marginVertical: 24 },
   dividerLine: { flex: 1, height: 1, backgroundColor: "#E2E8F0" },

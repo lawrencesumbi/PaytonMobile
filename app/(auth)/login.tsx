@@ -1,5 +1,9 @@
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
+  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -10,17 +14,35 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
-// Imported Expo Icons
-import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { supabase } from "../../lib/supabase";
 
 export default function Login() {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    console.log("Logging in with:", email, password);
+  const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert("Error", "Please input both an email address and a password.");
+      return;
+    }
+
+    setLoading(true);
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password: password,
+    });
+
+    setLoading(false);
+
+    if (error) {
+      Alert.alert("Login Failed", error.message);
+    } else {
+      // Successfully Authenticated! Forward them to your bottom navigation layout core
+      router.replace("/(tabs)/home"); 
+    }
   };
 
   const handleGoogleLogin = () => {
@@ -42,6 +64,7 @@ export default function Login() {
         <View style={styles.headerContainer}>
           <Image 
             source={require("../../assets/images/logo-light.png")}
+            resizeMode="contain" // Moved directly out of styles to prevent web warnings
             style={styles.logo} 
           />
           <Text style={styles.titleText}>Welcome back to PAYTON</Text>
@@ -60,6 +83,7 @@ export default function Login() {
               onChangeText={setEmail}
               keyboardType="email-address"
               autoCapitalize="none"
+              editable={!loading} // Prevents typing while submitting
             />
           </View>
 
@@ -73,16 +97,25 @@ export default function Login() {
               value={password}
               onChangeText={setPassword}
               autoCapitalize="none"
+              editable={!loading} // Prevents typing while submitting
             />
           </View>
 
-          <TouchableOpacity style={styles.forgotPasswordButton}>
+          <TouchableOpacity style={styles.forgotPasswordButton} disabled={loading}>
             <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
           </TouchableOpacity>
 
-          {/* Core Action Button */}
-          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
-            <Text style={styles.loginButtonText}>Sign In</Text>
+          {/* Core Action Button with Loading Feedback */}
+          <TouchableOpacity 
+            style={[styles.loginButton, loading && { opacity: 0.7 }]} 
+            onPress={handleLogin}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text style={styles.loginButtonText}>Sign In</Text>
+            )}
           </TouchableOpacity>
 
           {/* Divider Text */}
@@ -92,14 +125,14 @@ export default function Login() {
             <View style={styles.dividerLine} />
           </View>
 
-          {/* Social Sign-In Buttons with Left-Aligned Logos */}
+          {/* Social Sign-In Buttons */}
           <View style={styles.socialContainer}>
-            <TouchableOpacity style={styles.socialButton} onPress={handleGoogleLogin}>
+            <TouchableOpacity style={styles.socialButton} onPress={handleGoogleLogin} disabled={loading}>
               <Ionicons name="logo-google" size={20} color="#EA4335" />
               <Text style={styles.socialButtonText}>Google</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.socialButton} onPress={handleFacebookLogin}>
+            <TouchableOpacity style={styles.socialButton} onPress={handleFacebookLogin} disabled={loading}>
               <Ionicons name="logo-facebook" size={20} color="#1877F2" />
               <Text style={styles.socialButtonText}>Facebook</Text>
             </TouchableOpacity>
@@ -109,7 +142,7 @@ export default function Login() {
         {/* Bottom Section: Footer Navigation */}
         <View style={styles.footerContainer}>
           <Text style={styles.footerText}>Don't have an account? </Text>
-          <TouchableOpacity onPress={() => router.push("/signup")}>
+          <TouchableOpacity onPress={() => router.push("/signup")} disabled={loading}>
             <Text style={styles.signUpText}>Sign Up</Text>
           </TouchableOpacity>
         </View>
@@ -138,7 +171,6 @@ const styles = StyleSheet.create({
   logo: {
     width: 140,
     height: 140,
-    resizeMode: "contain",
     marginBottom: 16,
   },
   titleText: {
@@ -232,10 +264,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: "#E2E8F0",
-    flexDirection: "row", // Places icon and text side-by-side
+    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 10, // Adds clean breathing space between icon and text
+    gap: 10,
   },
   socialButtonText: {
     fontSize: 15,
