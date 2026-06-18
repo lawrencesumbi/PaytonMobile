@@ -177,7 +177,7 @@ export default function SignUp() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fdfdfdef" },
+  container: { flex: 1, backgroundColor: "black" },
   scrollContainer: { flexGrow: 1, justifyContent: "center", paddingHorizontal: 24, paddingTop: 40, paddingBottom: 20 },
   headerContainer: { alignItems: "center", marginBottom: 32 },
   logo: { width: 120, height: 120, marginBottom: 16 },

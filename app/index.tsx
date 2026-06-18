@@ -1,22 +1,19 @@
 import { useRouter } from "expo-router";
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Animated, Image, StyleSheet, View } from "react-native";
 
 export default function Index() {
   const router = useRouter();
-  
-  // 1. Initialize the opacity value at 0 (completely hidden)
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // 2. Trigger the fade-in animation
+
     Animated.timing(fadeAnim, {
-      toValue: 1,         // Target opacity
-      duration: 1200,     // Timing in milliseconds (1.2 seconds)
-      useNativeDriver: true, // Optimizes performance by running on the native thread
+      toValue: 1,       
+      duration: 1200,     
+      useNativeDriver: true, 
     }).start();
 
-    // 3. Splash screen redirect timer
     const timer = setTimeout(() => {
       router.replace("/login");
     }, 5000);
@@ -27,10 +24,9 @@ export default function Index() {
   return (
     <View style={styles.container}>
       
-      {/* Center Section: Main App Logo & Subtitle with Fade Effect */}
       <Animated.View style={[styles.centerContent, { opacity: fadeAnim }]}>
         <Image 
-          source={require("../assets/images/logo-light.png")} 
+          source={require("../assets/images/logo-dark.jpg")} 
           style={styles.logo} 
         />
       </Animated.View>
@@ -42,7 +38,7 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fdfdfdef", 
+    backgroundColor: "black", 
     paddingHorizontal: 20,
   },
   centerContent: {

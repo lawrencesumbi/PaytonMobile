@@ -1,6 +1,6 @@
  import { Ionicons } from "@expo/vector-icons";
+import React from "react";
 import { Dimensions, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
 const { width } = Dimensions.get("window");
 
 export default function HomeScreen() {
