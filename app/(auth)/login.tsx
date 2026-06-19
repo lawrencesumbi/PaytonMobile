@@ -41,7 +41,7 @@ export default function Login() {
       Alert.alert("Login Failed", error.message);
     } else {
       // Successfully Authenticated! Forward them to your bottom navigation layout core
-      router.replace("/(tabs)/home"); 
+      router.replace("/(auth)/role"); 
     }
   };
 
@@ -63,7 +63,7 @@ export default function Login() {
         {/* Top Section: Brand Logo & Welcoming Header */}
         <View style={styles.headerContainer}>
           <Image 
-            source={require("../../assets/images/logo-light.png")}
+            source={require("../../assets/images/logo-dark.jpg")}
             resizeMode="contain" // Moved directly out of styles to prevent web warnings
             style={styles.logo} 
           />
@@ -155,7 +155,7 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fdfdfdef",
+    backgroundColor: "black",
   },
   scrollContainer: {
     flexGrow: 1,
@@ -176,14 +176,14 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 26,
     fontWeight: "800",
-    color: "#20361A", 
+    color: "white", 
     textAlign: "center",
     marginBottom: 6,
   },
   subtitleText: {
     fontSize: 15,
     fontWeight: "500",
-    color: "#1C554E", 
+    color: "#c5dbd0", 
     textAlign: "center",
   },
   formContainer: {
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#20361A",
+    color: "#c5dbd0",
     marginBottom: 8,
   },
   input: {
@@ -222,13 +222,13 @@ const styles = StyleSheet.create({
   loginButton: {
     width: "100%",
     height: 52,
-    backgroundColor: "#84A346", 
+    backgroundColor: "#609c7e", 
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#84A346",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
+    shadowColor: "#c5dbd0",
+    shadowOffset: { width: 1, height: 4 },
+    shadowOpacity: .5,
     shadowRadius: 8,
     elevation: 3,
   },
@@ -283,11 +283,11 @@ const styles = StyleSheet.create({
   },
   footerText: {
     fontSize: 14,
-    color: "#666666",
+    color: "#c5dbd0",
   },
   signUpText: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#20361A",
+    color: "#92bba7",
   },
 });

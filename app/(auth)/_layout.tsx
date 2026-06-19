@@ -1,4 +1,5 @@
 import { Stack } from "expo-router";
+import React from "react";
 
 export default function AuthLayout() {
   return (
@@ -24,6 +25,12 @@ export default function AuthLayout() {
       />
       <Stack.Screen 
         name="signup" 
+        options={{ 
+          headerShown: false // Keeps your login screen full-screen without a top bar
+        }} 
+      />
+      <Stack.Screen 
+        name="role" 
         options={{ 
           headerShown: false // Keeps your login screen full-screen without a top bar
         }} 

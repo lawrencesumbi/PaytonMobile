@@ -177,17 +177,17 @@ export default function SignUp() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fdfdfdef" },
+  container: { flex: 1, backgroundColor: "black" },
   scrollContainer: { flexGrow: 1, justifyContent: "center", paddingHorizontal: 24, paddingTop: 40, paddingBottom: 20 },
   headerContainer: { alignItems: "center", marginBottom: 32 },
   logo: { width: 120, height: 120, marginBottom: 16 },
-  titleText: { fontSize: 26, fontWeight: "800", color: "#20361A", textAlign: "center", marginBottom: 6 },
-  subtitleText: { fontSize: 15, fontWeight: "500", color: "#1C554E", textAlign: "center" },
+  titleText: { fontSize: 26, fontWeight: "800", color: "white", textAlign: "center", marginBottom: 6 },
+  subtitleText: { fontSize: 15, fontWeight: "500", color: "#c5dbd0", textAlign: "center" },
   formContainer: { width: "100%", marginBottom: 24 },
   inputWrapper: { marginBottom: 16 },
-  inputLabel: { fontSize: 14, fontWeight: "600", color: "#20361A", marginBottom: 8 },
+  inputLabel: { fontSize: 14, fontWeight: "600", color: "#c5dbd0", marginBottom: 8 },
   input: { width: "100%", height: 50, backgroundColor: "#F4F7F6", borderRadius: 12, paddingHorizontal: 16, fontSize: 16, color: "#20361A", borderWidth: 1, borderColor: "#E2E8F0" },
-  signUpButton: { width: "100%", height: 52, backgroundColor: "#84A346", borderRadius: 12, justifyContent: "center", alignItems: "center", marginTop: 12 },
+  signUpButton: { width: "100%", height: 52, backgroundColor: "#609c7e", borderRadius: 12, justifyContent: "center", alignItems: "center", marginTop: 12 },
   signUpButtonText: { fontSize: 16, fontWeight: "700", color: "#FFFFFF" },
   dividerContainer: { flexDirection: "row", alignItems: "center", marginVertical: 24 },
   dividerLine: { flex: 1, height: 1, backgroundColor: "#E2E8F0" },
@@ -196,6 +196,6 @@ const styles = StyleSheet.create({
   socialButton: { flex: 1, height: 50, backgroundColor: "#FFFFFF", borderRadius: 12, borderWidth: 1, borderColor: "#E2E8F0", flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 10 },
   socialButtonText: { fontSize: 15, fontWeight: "600", color: "#20361A" },
   footerContainer: { flexDirection: "row", justifyContent: "center", alignItems: "center", marginTop: "auto", paddingTop: 20 },
-  footerText: { fontSize: 14, color: "#666666" },
-  loginText: { fontSize: 14, fontWeight: "700", color: "#20361A" },
+  footerText: { fontSize: 14, color: "#c5dbd0" },
+  loginText: { fontSize: 14, fontWeight: "700", color: "#609c7e" },
 });
