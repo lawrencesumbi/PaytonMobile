@@ -41,7 +41,7 @@ export default function Login() {
       Alert.alert("Login Failed", error.message);
     } else {
       // Successfully Authenticated! Forward them to your bottom navigation layout core
-      router.replace("/(tabs)/home"); 
+      router.replace("/(auth)/role"); 
     }
   };
 
